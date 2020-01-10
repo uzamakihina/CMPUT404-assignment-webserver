@@ -1,9 +1,9 @@
 #  coding: utf-8 
 import socketserver
-import os
+import os, sys
 
 
-# Copyright 2013 Abram Hindle, Eddie Antonio Santos
+# Copyright 2013 Abram Hindle, Eddie Antonio Santos, Joe Xu
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,23 +28,35 @@ import os
 
 
 
-
+#location, len
 
 # try: curl -v -X GET http://127.0.0.1:8080/
 
 
 class MyWebServer(socketserver.BaseRequestHandler):
 
+    def safe_path(self,basedir,path,follow_symlinks=True):
+
+        if follow_symlinks:
+
+            return os.path.realpath(path).startswith(basedir)
+
+
+
     def handle(self):
     
         self.data = self.request.recv(1024).strip()
         temp = str(self.data).split()
+
+        
+
         if ('GET' in temp[0]):
 
             
             default = "www"
-            url = default+temp[1].replace("../",'')
+            url = default+temp[1]
 
+            
            
             code = "200 OK"
 
@@ -57,10 +69,19 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 url+= '/index.html'
                 code = "301 Moved Permanently "
 
+            #print(safe_path(default, url, follow_symlinks=True))
+
+
             try:
                 data = open(url, "r") 
             except:
                 #self.request.sendall(bytearray("404",'utf-8'))
+                self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
+                return
+            
+
+            if not self.safe_path(os.getcwd()+"/www", url):
+                
                 self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
                 return
 
