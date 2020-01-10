@@ -1,5 +1,7 @@
 #  coding: utf-8 
 import socketserver
+import os
+
 
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
 # 
@@ -24,15 +26,66 @@ import socketserver
 #
 # run: python freetests.py
 
+
+
+
+
 # try: curl -v -X GET http://127.0.0.1:8080/
 
 
 class MyWebServer(socketserver.BaseRequestHandler):
-    
+
     def handle(self):
+    
         self.data = self.request.recv(1024).strip()
-        print ("Got a request of: %s\n" % self.data)
-        self.request.sendall(bytearray("OK",'utf-8'))
+        temp = str(self.data).split()
+        if ('GET' in temp[0]):
+
+            
+            default = "www"
+            url = default+temp[1].replace("../",'')
+
+           
+            code = "200 OK"
+
+            if url[len(url)-1] == '/':
+                url += "index.html"
+            try:
+                tempdir = open(url,"r")
+            except:
+                
+                url+= '/index.html'
+                code = "301 Moved Permanently "
+
+            try:
+                data = open(url, "r") 
+            except:
+                #self.request.sendall(bytearray("404",'utf-8'))
+                self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
+                return
+
+            self.request.sendall(bytearray("HTTP/1.1 " + code + "\n",'utf-8'))
+            pure = data.read()
+            if ".css" in url:
+                self.request.sendall(bytearray("Content-Type: text/css \n",'utf-8'))
+                if code != "301 Moved Permanently ":
+                
+                    self.request.sendall(bytearray(pure,'utf-8'))
+
+            if ".html" in url:
+                self.request.sendall(bytearray("Content-Type: text/html \n",'utf-8'))
+                if code != "301 Moved Permanently ":
+                    
+                    self.request.sendall(bytearray(pure,'utf-8'))
+
+
+        
+        else:
+
+            self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\n",'utf-8'))
+
+
+
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
