@@ -37,8 +37,11 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
     def safe_path(self,basedir,path,follow_symlinks=True):
 
+      
+
         if follow_symlinks:
 
+            
             return os.path.realpath(path).startswith(basedir)
 
 
@@ -62,8 +65,12 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
             if url[len(url)-1] == '/':
                 url += "index.html"
+
+            
             try:
+                print(url)
                 tempdir = open(url,"r")
+                
             except:
                 
                 url+= '/index.html'
@@ -80,21 +87,23 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 return
             
 
-            if not self.safe_path(os.getcwd()+"/www", url):
-                
-                self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
-                return
+            # if not self.safe_path(os.getcwd()+"/www", url):
+            #     print("############################# "+ url)
+            #     self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
+            #     return
 
             self.request.sendall(bytearray("HTTP/1.1 " + code + "\n",'utf-8'))
             pure = data.read()
             if ".css" in url:
-                self.request.sendall(bytearray("Content-Type: text/css \n",'utf-8'))
+                self.request.sendall(bytearray("Content-Type: text/css\n\n",'utf-8'))
+               #self.request.sendall(bytearray("location: url\n\n"))
                 if code != "301 Moved Permanently ":
                 
                     self.request.sendall(bytearray(pure,'utf-8'))
 
             if ".html" in url:
-                self.request.sendall(bytearray("Content-Type: text/html \n",'utf-8'))
+                self.request.sendall(bytearray("Content-Type: text/html\n\n",'utf-8'))
+                #self.request.sendall(bytearray("location: url\n\n"))
                 if code != "301 Moved Permanently ":
                     
                     self.request.sendall(bytearray(pure,'utf-8'))
