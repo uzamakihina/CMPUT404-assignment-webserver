@@ -68,7 +68,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
             
             try:
-                print(url)
+                
                 tempdir = open(url,"r")
                 
             except:
@@ -87,10 +87,10 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 return
             
 
-            # if not self.safe_path(os.getcwd()+"/www", url):
-            #     print("############################# "+ url)
-            #     self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
-            #     return
+            if not self.safe_path(os.getcwd()+"/www", url):
+                
+                self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
+                return
 
             self.request.sendall(bytearray("HTTP/1.1 " + code + "\n",'utf-8'))
             pure = data.read()
