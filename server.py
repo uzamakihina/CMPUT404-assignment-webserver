@@ -35,6 +35,14 @@ import os, sys
 
 class MyWebServer(socketserver.BaseRequestHandler):
 
+
+
+    def not_found(self):
+        self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
+        self.request.sendall(bytearray("404 Not Found!",'utf-8'))
+
+
+
     # function to detect depth attacks
     def safe_path(self,highest,dest,follow_symlinks=True):
         if follow_symlinks:
@@ -72,7 +80,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 data = open(url, "r") 
             except:
     
-                self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
+                self.not_found() 
                 
                 return
             
@@ -80,8 +88,8 @@ class MyWebServer(socketserver.BaseRequestHandler):
             # is the path higher than www? 
             if not self.safe_path(os.getcwd()+"/www", url):
                 
-                self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
-                print(url)
+                self.not_found()
+                
                 return
 
             # send header
@@ -97,12 +105,13 @@ class MyWebServer(socketserver.BaseRequestHandler):
             elif ".html" in url:
                 self.request.sendall(bytearray("Content-Type: text/html\n",'utf-8'))
                 self.request.sendall(bytearray("Location : " + url + " \n\n", 'utf-8'))
-                # if code != "301 Moved Permanently ":
+                #if code != "301 Moved Permanently ":
                 self.request.sendall(bytearray(pure,'utf-8'))
+                
                 
             else:
                 # dont give files that are not css or html
-                self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
+                self.not_found()
 
 
         
