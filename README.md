@@ -25,9 +25,9 @@ Software Foundation; All Rights Reserved under the PSF license (GPL
 compatible) http://docs.python.org/2/library/socketserver.html
 
 
-Collaboration = Vanessa peng
+Collaboratrs: Vanessa peng
 
-External source code library:
+External sources:
     openstack link: https://security.openstack.org/guidelines/dg_using-file-paths.html
     
 

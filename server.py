@@ -35,14 +35,10 @@ import os, sys
 
 class MyWebServer(socketserver.BaseRequestHandler):
 
-    def safe_path(self,basedir,path,follow_symlinks=True):
-
-      
-
+    # function to detect depth attacks
+    def safe_path(self,highest,dest,follow_symlinks=True):
         if follow_symlinks:
-
-            
-            return os.path.realpath(path).startswith(basedir)
+            return os.path.realpath(dest).startswith(highest)
 
 
 
@@ -51,65 +47,66 @@ class MyWebServer(socketserver.BaseRequestHandler):
         self.data = self.request.recv(1024).strip()
         temp = str(self.data).split()
 
-        
-
+        # if its a get api
         if ('GET' in temp[0]):
-
             
             default = "www"
             url = default+temp[1]
 
-            
-           
             code = "200 OK"
 
+            # if not specific files called
             if url[len(url)-1] == '/':
                 url += "index.html"
 
-            
-            try:
-                
-                tempdir = open(url,"r")
-                
-            except:
-                
+
+            # if its a 301 
+            if os.path.isdir(url):
                 url+= '/index.html'
                 code = "301 Moved Permanently "
+        
 
-            #print(safe_path(default, url, follow_symlinks=True))
 
-
+            # if fails to open definitly 404
             try:
                 data = open(url, "r") 
             except:
-                #self.request.sendall(bytearray("404",'utf-8'))
+    
                 self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
+                
                 return
             
 
+            # is the path higher than www? 
             if not self.safe_path(os.getcwd()+"/www", url):
                 
                 self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
+                print(url)
                 return
 
+            # send header
             self.request.sendall(bytearray("HTTP/1.1 " + code + "\n",'utf-8'))
             pure = data.read()
+            
             if ".css" in url:
-                self.request.sendall(bytearray("Content-Type: text/css\n\n",'utf-8'))
-               #self.request.sendall(bytearray("location: url\n\n"))
-                if code != "301 Moved Permanently ":
-                
-                    self.request.sendall(bytearray(pure,'utf-8'))
+                self.request.sendall(bytearray("Content-Type: text/css\n",'utf-8'))
+                self.request.sendall(bytearray("Location : " + url+" \n\n", 'utf-8'))
+                # if code != "301 Moved Permanently ":
+                self.request.sendall(bytearray(pure,'utf-8'))
 
-            if ".html" in url:
-                self.request.sendall(bytearray("Content-Type: text/html\n\n",'utf-8'))
-                #self.request.sendall(bytearray("location: url\n\n"))
-                if code != "301 Moved Permanently ":
-                    
-                    self.request.sendall(bytearray(pure,'utf-8'))
+            elif ".html" in url:
+                self.request.sendall(bytearray("Content-Type: text/html\n",'utf-8'))
+                self.request.sendall(bytearray("Location : " + url + " \n\n", 'utf-8'))
+                # if code != "301 Moved Permanently ":
+                self.request.sendall(bytearray(pure,'utf-8'))
+                
+            else:
+                # dont give files that are not css or html
+                self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
 
 
         
+        # if not a GET
         else:
 
             self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\n",'utf-8'))
