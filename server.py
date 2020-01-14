@@ -46,6 +46,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
 
     def not_found(self):
+        
         self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
         #self.request.sendall(bytearray("404 Not Found!",'utf-8'))
 
@@ -111,8 +112,14 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 self.request.sendall(bytearray(pure,'utf-8'))
 
             elif ".html" in url:
-                self.request.sendall(bytearray("Content-Type: text/html \n",'utf-8'))
-                self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + url[3:] + " \n\n", 'utf-8'))
+                self.request.sendall(bytearray("Content-Type: text/html \n\n",'utf-8'))
+                loc = url[3:]
+
+                
+                #self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + loc + " \n\n", 'utf-8'))
+                
+                
+                
                 #if code != "301 Moved Permanently ":
                 self.request.sendall(bytearray(pure,'utf-8'))
                 
