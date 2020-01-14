@@ -33,13 +33,21 @@ import os, sys
 # try: curl -v -X GET http://127.0.0.1:8080/
 
 
+
+
+
+
+
+
+
+
 class MyWebServer(socketserver.BaseRequestHandler):
 
 
 
     def not_found(self):
         self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
-        self.request.sendall(bytearray("404 Not Found!",'utf-8'))
+        #self.request.sendall(bytearray("404 Not Found!",'utf-8'))
 
 
 
@@ -71,7 +79,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             # if its a 301 
             if os.path.isdir(url):
                 url+= '/index.html'
-                code = "301 Moved Permanently "
+                code = "301 Moved Permanently"
         
 
 
@@ -93,18 +101,18 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 return
 
             # send header
-            self.request.sendall(bytearray("HTTP/1.1 " + code + "\n",'utf-8'))
+            self.request.sendall(bytearray("HTTP/1.1 " + code + " \n",'utf-8'))
             pure = data.read()
             
             if ".css" in url:
-                self.request.sendall(bytearray("Content-Type: text/css\n",'utf-8'))
-                self.request.sendall(bytearray("Location : " + url+" \n\n", 'utf-8'))
+                self.request.sendall(bytearray("Content-Type: text/css \n\n",'utf-8'))
+                #self.request.sendall(bytearray("Location : " + url+" \n\n", 'utf-8'))
                 # if code != "301 Moved Permanently ":
                 self.request.sendall(bytearray(pure,'utf-8'))
 
             elif ".html" in url:
-                self.request.sendall(bytearray("Content-Type: text/html\n",'utf-8'))
-                self.request.sendall(bytearray("Location : " + url + " \n\n", 'utf-8'))
+                self.request.sendall(bytearray("Content-Type: text/html \n",'utf-8'))
+                self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + url[3:] + " \n\n", 'utf-8'))
                 #if code != "301 Moved Permanently ":
                 self.request.sendall(bytearray(pure,'utf-8'))
                 
@@ -119,7 +127,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
         else:
 
             self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\n",'utf-8'))
-
 
 
 
