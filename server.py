@@ -48,6 +48,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
     def not_found(self):
         
         self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
+        self.request.close()
         #self.request.sendall(bytearray("404 Not Found!",'utf-8'))
 
 
@@ -72,21 +73,28 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
             code = "200 OK"
 
+            
+            
             # if not specific files called
             if url[len(url)-1] == '/':
                 url += "index.html"
+                
 
 
             # if its a 301 
-            if os.path.isdir(url):
-                url+= '/index.html'
+            elif os.path.isdir(url):
+                
                 code = "301 Moved Permanently"
         
 
 
             # if fails to open definitly 404
             try:
-                data = open(url, "r") 
+                if "301" in code:
+                    data = open(url+"/index.html","r")
+                else:
+
+                    data = open(url, "r") 
             except:
     
                 self.not_found() 
@@ -106,24 +114,41 @@ class MyWebServer(socketserver.BaseRequestHandler):
             pure = data.read()
             
             if ".css" in url:
-                self.request.sendall(bytearray("Content-Type: text/css \n\n",'utf-8'))
-                #self.request.sendall(bytearray("Location : " + url+" \n\n", 'utf-8'))
+                self.request.sendall(bytearray("Content-Type: text/css \n",'utf-8'))
+                self.request.sendall(bytearray("Location : " + url+" \n", 'utf-8'))
+                self.request.sendall(bytearray("Connection: close \n\n", 'utf-8'))
                 # if code != "301 Moved Permanently ":
                 self.request.sendall(bytearray(pure,'utf-8'))
 
-            elif ".html" in url:
-                self.request.sendall(bytearray("Content-Type: text/html \n\n",'utf-8'))
-                loc = url[3:]
+            elif ".html" in url or "301" in code:
+
+                # print("#########"+url+" " + code)
+                
+                self.request.sendall(bytearray("Content-Type: text/html \n",'utf-8'))
+
+                if "301" in code:
+                    loc = url[3:]+'/'
+                else:
+                    loc = url[3:]
+                self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + loc + "\n", 'utf-8'))
+                self.request.sendall(bytearray("Connection: close \n\n", 'utf-8'))
+                
+            
 
                 
-                #self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + loc + " \n\n", 'utf-8'))
                 
                 
                 
                 #if code != "301 Moved Permanently ":
                 self.request.sendall(bytearray(pure,'utf-8'))
+                self.request.close()
                 
-                
+            
+
+
+
+
+
             else:
                 # dont give files that are not css or html
                 self.not_found()
@@ -134,6 +159,9 @@ class MyWebServer(socketserver.BaseRequestHandler):
         else:
 
             self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\n",'utf-8'))
+
+            
+        self.request.close()
 
 
 
