@@ -122,7 +122,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
             elif ".html" in url or "301" in code:
 
-                # print("#########"+url+" " + code)
+                
                 
                 self.request.sendall(bytearray("Content-Type: text/html \n",'utf-8'))
 
@@ -130,6 +130,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                     loc = url[3:]+'/'
                 else:
                     loc = url[3:]
+                
                 self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + loc + "\n", 'utf-8'))
                 self.request.sendall(bytearray("Connection: close \n\n", 'utf-8'))
                 
