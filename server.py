@@ -1,6 +1,7 @@
 #  coding: utf-8 
 import socketserver
 import os, sys
+from multiprocessing import Process
 
 
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos, Joe Xu
@@ -43,11 +44,11 @@ import os, sys
 
 class MyWebServer(socketserver.BaseRequestHandler):
 
-
+    sem = 0
 
     def not_found(self):
         
-        self.request.sendall(bytearray("HTTP/1.1 404 Not Found\n",'utf-8'))
+        self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
         self.request.close()
         #self.request.sendall(bytearray("404 Not Found!",'utf-8'))
 
@@ -61,7 +62,8 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
 
     def handle(self):
-    
+
+
         self.data = self.request.recv(1024).strip()
         temp = str(self.data).split()
 
@@ -110,13 +112,13 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 return
 
             # send header
-            self.request.sendall(bytearray("HTTP/1.1 " + code + " \n",'utf-8'))
+            self.request.sendall(bytearray("HTTP/1.1 " + code + "\r\n",'utf-8'))
             pure = data.read()
             
             if ".css" in url:
-                self.request.sendall(bytearray("Content-Type: text/css \n",'utf-8'))
-                self.request.sendall(bytearray("Location : " + url+" \n", 'utf-8'))
-                self.request.sendall(bytearray("Connection: close \n\n", 'utf-8'))
+                self.request.sendall(bytearray("Content-Type: text/css\r\n",'utf-8'))
+                self.request.sendall(bytearray("Location : " + url+"\r\n", 'utf-8'))
+                self.request.sendall(bytearray("Connection: close \r\n\r\n", 'utf-8'))
                 # if code != "301 Moved Permanently ":
                 self.request.sendall(bytearray(pure,'utf-8'))
 
@@ -124,15 +126,18 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
                 
                 
-                self.request.sendall(bytearray("Content-Type: text/html \n",'utf-8'))
+                self.request.sendall(bytearray("Content-Type: text/html\r\n",'utf-8'))
 
                 if "301" in code:
                     loc = url[3:]+'/'
+                    self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + loc + "\r\n", 'utf-8'))
                 else:
                     loc = url[3:]
                 
-                self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + loc + "\n", 'utf-8'))
-                self.request.sendall(bytearray("Connection: close \n\n", 'utf-8'))
+                length = str(len(pure))
+                #self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + loc + "\r\n", 'utf-8'))
+                self.request.sendall(bytearray("Content-Length: " + length + "\r\n", 'utf-8'))
+                self.request.sendall(bytearray("Connection: close\r\n\r\n", 'utf-8'))
                 
             
 
@@ -159,7 +164,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
         # if not a GET
         else:
 
-            self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\n",'utf-8'))
+            self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n",'utf-8'))
 
             
         self.request.close()
@@ -176,3 +181,8 @@ if __name__ == "__main__":
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
     server.serve_forever()
+
+
+
+
+    
