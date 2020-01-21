@@ -131,6 +131,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 if "301" in code:
                     loc = url[3:]+'/'
                     self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + loc + "\r\n", 'utf-8'))
+                    print(loc)
                 else:
                     loc = url[3:]
                 
