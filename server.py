@@ -44,15 +44,14 @@ from multiprocessing import Process
 
 class MyWebServer(socketserver.BaseRequestHandler):
 
-    sem = 0
+    
 
     def not_found(self):
         
         self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
+        self.request.sendall(bytearray("Connection: close\r\n\r\n",'utf-8'))
         self.request.close()
         #self.request.sendall(bytearray("404 Not Found!",'utf-8'))
-
-
 
     # function to detect depth attacks
     def safe_path(self,highest,dest,follow_symlinks=True):
@@ -62,6 +61,9 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
 
     def handle(self):
+
+        
+
 
 
         self.data = self.request.recv(1024).strip()
@@ -75,8 +77,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
             code = "200 OK"
 
-            
-            
             # if not specific files called
             if url[len(url)-1] == '/':
                 url += "index.html"
@@ -118,7 +118,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             if ".css" in url:
                 self.request.sendall(bytearray("Content-Type: text/css\r\n",'utf-8'))
                 self.request.sendall(bytearray("Location : " + url+"\r\n", 'utf-8'))
-                self.request.sendall(bytearray("Connection: close \r\n\r\n", 'utf-8'))
+                self.request.sendall(bytearray("Connection: close\r\n\r\n", 'utf-8'))
                 # if code != "301 Moved Permanently ":
                 self.request.sendall(bytearray(pure,'utf-8'))
 
@@ -139,35 +139,23 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 self.request.sendall(bytearray("Content-Length: " + length + "\r\n", 'utf-8'))
                 self.request.sendall(bytearray("Connection: close\r\n\r\n", 'utf-8'))
                 
-            
+                self.request.sendall(bytearray(pure+'b"','utf-8'))
 
                 
                 
-                
-                
-                #if code != "301 Moved Permanently ":
-                self.request.sendall(bytearray(pure,'utf-8'))
-                self.request.close()
-                
-            
-
-
-
-
-
             else:
                 # dont give files that are not css or html
                 self.not_found()
-
-
-        
+ 
         # if not a GET
         else:
 
             self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n",'utf-8'))
 
-            
+
+        
         self.request.close()
+        
 
 
 
@@ -181,6 +169,7 @@ if __name__ == "__main__":
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
     server.serve_forever()
+
 
 
 
