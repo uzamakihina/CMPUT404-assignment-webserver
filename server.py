@@ -124,7 +124,6 @@ class MyWebServer(socketserver.BaseRequestHandler):
             
             if ".css" in url:
                 self.request.sendall(bytearray("Content-Type: text/css\r\n",'utf-8'))
-                self.request.sendall(bytearray("Location : " + url+"\r\n", 'utf-8'))
                 self.request.sendall(bytearray("Connection: close\r\n\r\n", 'utf-8'))
                 # if code != "301 Moved Permanently ":
                 self.request.sendall(bytearray(pure,'utf-8'))
