@@ -64,10 +64,12 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
         
 
-
+        print("reached")
 
         self.data = self.request.recv(1024).strip()
         temp = str(self.data).split()
+
+        print(temp)
 
         # if its a get api
         if ('GET' in temp[0]):
@@ -131,7 +133,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 if "301" in code:
                     loc = url[3:]+'/'
                     self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + loc + "\r\n", 'utf-8'))
-                    print(loc)
+                    
                 else:
                     loc = url[3:]
                 
