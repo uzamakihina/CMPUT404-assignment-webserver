@@ -48,9 +48,14 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
     def not_found(self):
         
+        nf_img = open("NotFound.html","r").read()
         self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
         self.request.sendall(bytearray("Connection: close\r\n\r\n",'utf-8'))
+        self.request.sendall(bytearray(nf_img,'utf-8'))
+        
         self.request.close()
+        
+
         #self.request.sendall(bytearray("404 Not Found!",'utf-8'))
 
     # function to detect depth attacks
@@ -64,12 +69,12 @@ class MyWebServer(socketserver.BaseRequestHandler):
 
         
 
-        print("reached")
+        #print("reached")
 
         self.data = self.request.recv(1024).strip()
         temp = str(self.data).split()
 
-        print(temp)
+        #print(temp)
 
         # if its a get api
         if ('GET' in temp[0]):
@@ -142,7 +147,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
                 self.request.sendall(bytearray("Content-Length: " + length + "\r\n", 'utf-8'))
                 self.request.sendall(bytearray("Connection: close\r\n\r\n", 'utf-8'))
                 
-                self.request.sendall(bytearray(pure+'b"','utf-8'))
+                self.request.sendall(bytearray(pure,'utf-8'))
 
                 
                 
@@ -152,9 +157,9 @@ class MyWebServer(socketserver.BaseRequestHandler):
  
         # if not a GET
         else:
-
-            self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n",'utf-8'))
-
+            na_img = open("NotAllowed.html","r").read()
+            self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n\r\n",'utf-8'))
+            self.request.sendall(bytearray(na_img,'utf-8'))
 
         
         self.request.close()
