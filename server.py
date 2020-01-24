@@ -50,10 +50,11 @@ class MyWebServer(socketserver.BaseRequestHandler):
         
         nf_img = open("NotFound.html","r").read()
         self.request.sendall(bytearray("HTTP/1.1 404 Not Found\r\n",'utf-8'))
-        self.request.sendall(bytearray("Content-Type: text/html; charset=UTF-8\r\n",'utf-8'))
+        self.request.sendall(bytearray("Content-Type: text/html\r\n",'utf-8'))
         self.request.sendall(bytearray("Content-Length: " +str(len(nf_img))+"\r\n",'utf-8'))
         self.request.sendall(bytearray("Connection: close\r\n\r\n",'utf-8'))
         self.request.sendall(bytearray(nf_img,'utf-8'))
+        self.request.close()
         
         
         
@@ -109,7 +110,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             except:
     
                 self.not_found() 
-                self.request.close()
+                
                 
                 return
             
@@ -118,7 +119,7 @@ class MyWebServer(socketserver.BaseRequestHandler):
             if not self.safe_path(os.getcwd()+"/www", url):
                 
                 self.not_found()
-                self.request.close()
+                
                 
                 return
 
@@ -137,11 +138,12 @@ class MyWebServer(socketserver.BaseRequestHandler):
             elif ".html" in url or "301" in code:
 
                 
-                self.request.sendall(bytearray("HTTP/1.1 " + code + "\r\n",'utf-8'))
+                
                 
 
                 if "301" in code:
                     loc = url[3:]+'/'
+                    self.request.sendall(bytearray("HTTP/1.1 " + code + "\r\n",'utf-8'))
                     self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + loc + "\r\n", 'utf-8'))
                     
                     self.request.sendall(bytearray("Connection: close\r\n\r\n", 'utf-8'))
@@ -152,8 +154,8 @@ class MyWebServer(socketserver.BaseRequestHandler):
                     loc = url[3:]
                 
                 length = str(len(pure))
-                #self.request.sendall(bytearray("Location: http://127.0.0.1:8080" + loc + "\r\n", 'utf-8'))
-                self.request.sendall(bytearray("Content-Type: text/html; charset=UTF-8\r\n",'utf-8'))
+                self.request.sendall(bytearray("HTTP/1.1 " + code + "\r\n",'utf-8'))
+                self.request.sendall(bytearray("Content-Type: text/html\r\n",'utf-8'))
                 self.request.sendall(bytearray("Content-Length: " + length + "\r\n", 'utf-8'))
                 self.request.sendall(bytearray("Connection: close\r\n\r\n", 'utf-8'))
                 
@@ -165,13 +167,13 @@ class MyWebServer(socketserver.BaseRequestHandler):
             else:
                 # dont give files that are not css or html
                 self.not_found()
-                self.request.close()
+                
  
         # if not a GET
         else:
             na_img = open("NotAllowed.html","r").read()
             self.request.sendall(bytearray("HTTP/1.1 405 Method Not Allowed\r\n",'utf-8'))
-            self.request.sendall(bytearray("Content-Type: text/html; charset=UTF-8\r\n",'utf-8'))
+            self.request.sendall(bytearray("Content-Type: text/html\r\n",'utf-8'))
             self.request.sendall(bytearray("Content-Length: " +str(len(na_img))+"\r\n",'utf-8'))
             self.request.sendall(bytearray("Connection: close\r\n\r\n", 'utf-8'))
             self.request.sendall(bytearray(na_img,'utf-8'))
